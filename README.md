@@ -15,4 +15,4 @@ To get started with Agimaster, follow these steps:
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/[your-username]/agimaster.git
+   git clone https://github.com/ritheshInfoSec/agimaster.git
