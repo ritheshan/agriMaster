@@ -1,5 +1,5 @@
 import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/auth.middleware.js';
 import { upload } from '../config/cloudinary.js';
 import {
   addCropsInterested,
@@ -12,7 +12,7 @@ import {
   addTask,
   updateTaskStatus,
   getCropNotifications
-} from '../controllers/crop.js';
+} from '../controllers/crop.controller.js';
 
 const router = express.Router();
 

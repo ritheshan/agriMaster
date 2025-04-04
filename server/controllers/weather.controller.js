@@ -1,6 +1,6 @@
 import Weather from '../models/Weather.js';
 import Field from '../models/Field.js';
-import weatherService from '../services/weatherService.js';
+import weatherService from '../services/weather.service.js';
 
 export const getFieldWeather = async (req, res) => {
   try {

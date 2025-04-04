@@ -5,18 +5,17 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import connectDB from './config/db.js';
-import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/user.js';
-import fieldRoutes from './routes/fieldRoutes.js';
-import cropRoutes from './routes/cropRoutes.js';
-import weatherRoutes from './routes/weatherRoutes.js';
-import communityRoutes from './routes/community.js';
-import mlRoutes from './routes/mlRoutes.js';
+import connectDB from './config/database.js';
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+import fieldRoutes from './routes/field.routes.js';
+import cropRoutes from './routes/crop.routes.js';
+import weatherRoutes from './routes/weather.routes.js';
+import communityRoutes from './routes/community.routes.js';
+import mlRoutes from './routes/ml.routes.js';
 
 // Initialize cron jobs
-import './utils/cropNotificationCron.js';
-import './utils/weatherCron.js';
+import './utils/cron.js';
 
 dotenv.config();
 const app = express();
