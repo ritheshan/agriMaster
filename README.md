@@ -8,7 +8,7 @@ Agimaster is a cutting-edge platform designed to enhance agricultural management
 - **Data Analysis:** Analyze agricultural data to gain insights and optimize farming practices.
 - **Real-Time Updates:** Receive timely updates on ongoing farming activities and conditions.
 - **User-Friendly Dashboard:** Easily navigate and manage farming operations through an intuitive interface.
-
+- **loan-provinding**
 ## Getting Started
 
 To get started with Agimaster, follow these steps:
