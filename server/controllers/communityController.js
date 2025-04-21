@@ -1,8 +1,10 @@
-const Post = require('../models/Post');
-const Comment = require('../models/Comment');
-const User = require('../models/User');
+// File: server/controllers/communityController.js
 
-exports.createPost = async (req, res) => {
+import Post from '../models/Post.js';
+import Comment from '../models/Comment.js';
+import User from '../models/User.js';
+
+export const createPost = async (req, res) => {
   try {
     const { text, tags, type } = req.body;
     const image = req.files?.image?.[0]?.path;
@@ -23,7 +25,7 @@ exports.createPost = async (req, res) => {
   }
 };
 
-exports.getPosts = async (req, res) => {
+export const getPosts = async (req, res) => {
   try {
     const { type, tag, search, sortBy = 'createdAt', order = 'desc', page = 1, limit = 10 } = req.query;
     const filter = {};
@@ -43,7 +45,7 @@ exports.getPosts = async (req, res) => {
   }
 };
 
-exports.getPostById = async (req, res) => {
+export const getPostById = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id).populate('user');
     if (!post) return res.status(404).json({ success: false, error: 'Post not found' });
@@ -57,7 +59,7 @@ exports.getPostById = async (req, res) => {
   }
 };
 
-exports.addComment = async (req, res) => {
+export const addComment = async (req, res) => {
   try {
     const comment = await Comment.create({
       post: req.params.id,
@@ -71,7 +73,7 @@ exports.addComment = async (req, res) => {
   }
 };
 
-exports.toggleLike = async (req, res) => {
+export const toggleLike = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     const userId = req.user.id;
@@ -87,7 +89,7 @@ exports.toggleLike = async (req, res) => {
   }
 };
 
-exports.verifyPost = async (req, res) => {
+export const verifyPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ success: false, error: 'Post not found' });
@@ -102,7 +104,7 @@ exports.verifyPost = async (req, res) => {
   }
 };
 
-exports.deletePost = async (req, res) => {
+export const deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ success: false, error: 'Post not found' });
@@ -117,7 +119,7 @@ exports.deletePost = async (req, res) => {
   }
 };
 
-exports.promoteUser = async (req, res) => {
+export const promoteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
     if (!user) return res.status(404).json({ success: false, error: 'User not found' });
