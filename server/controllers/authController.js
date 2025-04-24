@@ -1,11 +1,88 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { storeOTP, verifyOTP } from '../utils/otpStore.js';
+import { google } from 'googleapis';
 
 
-const generateToken = (user) => jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
 
-import User from '../models/User.js';
+export const getGoogleAuthURL = (req, res) => {
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile'
+    ],
+    redirect_uri: process.env.GOOGLE_REDIRECT_URI
+  });
+
+  res.json({ url });
+};
+
+export const handleGoogleCallback = async (req, res) => {
+  const { code } = req.query;
+
+  if (!code) {
+    return res.status(400).json({ success: false, message: 'No code provided' });
+  }
+
+  try {
+    // Exchange code for tokens
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    // Get user info from Google
+    const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+    const { data: googleUser } = await oauth2.userinfo.get();
+
+    // Check if user already exists
+    let user = await User.findOne({ email: googleUser.email });
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      user = new User({
+        name: googleUser.name,
+        email: googleUser.email,
+        googleId: googleUser.id,
+        authProviders: ['google'],
+        profilePicture: googleUser.picture,
+        profileCompleted: false,
+        role: 'user'
+      });
+    } else {
+      if (!user.authProviders.includes('google')) {
+        user.authProviders.push('google');
+      }
+      user.googleId = googleUser.id;
+      user.profilePicture = googleUser.picture;
+    }
+
+    await user.save();
+
+    // Sign JWT token
+    const token = jwt.sign(
+      { _id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+res.cookie('token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'Lax', // or 'None' if frontend is on a different domain with HTTPS
+  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+});
+res.redirect('http://localhost:5173/dashboard'); // or wherever you want to land
+  } catch (err) {
+    console.error('Google OAuth Error:', err);
+    res.status(500).json({ success: false, message: 'Google authentication failed' });
+  }
+};
 
 export const sendOtp = async (req, res) => {
   const { phoneNumber } = req.body;
@@ -20,7 +97,7 @@ export const sendOtp = async (req, res) => {
   }
 
   const otp = user.createVerificationOTP();
-  await user.save();
+  await user.save();  
 
   // TODO: Integrate with SMS service like Twilio here
   console.log('OTP to send:', otp); // For dev only
