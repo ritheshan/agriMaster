@@ -1,9 +1,10 @@
-const express = require('express');
-const multer = require('multer');
-const { authenticateToken, authorizeRoles } = require('../middleware/auth');
-const router = express.Router();
-const communityController = require('../controllers/communityController');
+// File: server/routes/community.js
+import express from 'express';
+import multer from 'multer';
+import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
+import * as communityController from '../controllers/communityController.js';
 
+const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 router.post('/post', authenticateToken, upload.fields([{ name: 'image' }, { name: 'video' }]), communityController.createPost);
@@ -15,4 +16,4 @@ router.post('/post/:id/verify', authenticateToken, authorizeRoles('expert', 'adm
 router.delete('/post/:id', authenticateToken, communityController.deletePost);
 router.post('/promote/:userId', authenticateToken, authorizeRoles('admin'), communityController.promoteUser);
 
-module.exports = router;
+export default router;
