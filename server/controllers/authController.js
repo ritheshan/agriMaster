@@ -85,24 +85,32 @@ res.redirect('http://localhost:5173/dashboard'); // or wherever you want to land
 };
 
 export const sendOtp = async (req, res) => {
-  const { phoneNumber } = req.body;
+  try {
+    console.log("📩 Incoming OTP request:", req.body);
 
-  if (!phoneNumber) return res.status(400).json({ message: 'Phone number required' });
+    const { phoneNumber } = req.body;
 
-  let user = await User.findOne({ phoneNumber });
+    if (!phoneNumber) {
+      console.log("❌ Missing phone number");
+      return res.status(400).json({ message: 'Phone number required' });
+    }
 
-  if (!user) {
-    // Optional: create user if doesn't exist
-    user = new User({ phoneNumber, role: 'user' });
+    let user = await User.findOne({ phoneNumber });
+
+    if (!user) {
+      user = new User({ phoneNumber, role: 'user' });
+    }
+
+    const otp = user.methods.createVerificationOTP();
+    await user.save();
+
+    console.log("✅ OTP to send:", otp);
+    return res.status(200).json({ message: "OTP sent successfully" });
+
+  } catch (err) {
+    console.error("❌ Error in sendOtp:", err);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
-
-  const otp = user.createVerificationOTP();
-  await user.save();  
-
-  // TODO: Integrate with SMS service like Twilio here
-  console.log('OTP to send:', otp); // For dev only
-
-  res.status(200).json({ message: 'OTP sent successfully' });
 };
 
 export const verifyOtp = async (req, res) => {

@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 /**
  * Middleware to verify JWT and attach user to request
  */
-export function authenticate(req, res, next) {
+export function authMiddleware(req, res, next) {
   const token = req.cookies?.token; // 👈 Get JWT from cookie
 
   if (!token) {
