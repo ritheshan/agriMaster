@@ -1,9 +1,14 @@
-const commentSchema = new mongoose.Schema({
-  post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  text: String,
-  parentComment: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: null },
-  createdAt: { type: Date, default: Date.now }
-});
+import mongoose from 'mongoose';
 
-module.exports = mongoose.model('Comment', commentSchema);
+const commentSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post', required: true },
+    text: { type: String, required: true },
+    parentComment: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: null }
+  },
+  { timestamps: true }
+);
+
+const Comment = mongoose.model('Comment', commentSchema);
+export default Comment;
