@@ -1,15 +1,18 @@
-node_modules/
-DS_Store
+# Node modules (ignore in both client and server)
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+client/dist/
+server/dist/
+
+# Environment variables
+client/.env
+server/.env
+.env
+
 # Logs
-logs
-npm-debug.log*
-yarn-debug.log*
+*.log
 
-
-
-
-
-
-
-
-
+# System files
+.DS_Store
