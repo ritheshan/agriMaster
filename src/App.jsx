@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 import Home from "./pages/Home";
 // import CropManagement from "./pages/CropManagement";
 // import Weather from "./pages/Weather";
@@ -13,11 +13,11 @@ const App = () => {
         <Link to="/weather">Weather</Link> */}
       </nav>
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* <Route path="/crops" element={<CropManagement />} />
-        <Route path="/weather" element={<Weather />} /> */}
-      </Routes>
+      <Switch>  {/* ✅ Replace <Routes> with <Switch> */}
+        <Route exact path="/" component={Home} /> 
+        {/* <Route path="/crops" component={CropManagement} />
+        <Route path="/weather" component={Weather} /> */}
+      </Switch>
     </div>
   );
 };
