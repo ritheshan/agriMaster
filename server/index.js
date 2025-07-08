@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/user.js';
+import fieldRoutes from './routes/fieldRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -22,8 +23,7 @@ await connectDB();
 
 app.use('/api/auth', authRoutes);  // ✅ NOTE THE SLASH
 app.use('/api/me', userRoutes);    // ✅
-
-
+app.use('/api/fields', fieldRoutes);
 
 app.use((req, res, next) => {
   console.log(`❌ No route matched: ${req.method} ${req.originalUrl}`);
