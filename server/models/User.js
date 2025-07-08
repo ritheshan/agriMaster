@@ -64,6 +64,30 @@ authProviders: {
     default: '/profile.png'
   },
 
+  location: {
+    lat: {
+      type: Number,
+      required: false
+    },
+    lng: {
+      type: Number,
+      required: false
+    },
+    pincode: {
+      type: String,
+      trim: true
+    }
+  },
+
+  cropsInterested: {
+    type: [String],
+    default: []
+  },
+
+  cropRecords: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CropRecord'
+  }],
 
   verificationOtp: String,         // 🔐 Hashed OTP
   otpExpires: Date,                // ⏱️ Expiration time for OTP
