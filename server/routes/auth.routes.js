@@ -1,7 +1,7 @@
 import express from 'express';
 import { sendOtp, verifyOtp , getMe ,  getGoogleAuthURL,
-  handleGoogleCallback} from '../controllers/auth.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+  handleGoogleCallback} from '../controllers/auth.controller.js';
+import { authMiddleware } from '../middleware/auth.middleware.js';
 
 
 const router = express.Router();

@@ -1,6 +1,6 @@
 import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
-import { getFieldWeather, getFieldWeatherHistory } from '../controllers/weatherController.js';
+import { protect } from '../middleware/auth.middleware.js';
+import { getFieldWeather, getFieldWeatherHistory } from '../controllers/weather.controller.js';
 
 const router = express.Router();
 
