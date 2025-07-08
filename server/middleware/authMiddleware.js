@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 /**
  * Middleware to verify JWT and attach user to request
@@ -20,13 +21,63 @@ export function authMiddleware(req, res, next) {
 }
 
 /**
+ * Alternative protect middleware (commonly used name)
+ */
+export const protect = authMiddleware;
+
+/**
  * Middleware to authorize specific roles
  */
 export function authorizeRoles(...roles) {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
-      return res.sendStatus(403); // Forbidden
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Access denied. Insufficient permissions.' 
+      });
     }
     next();
   };
 }
+
+/**
+ * Middleware to check if user is admin
+ */
+export const requireAdmin = authorizeRoles('admin');
+
+/**
+ * Middleware to check if user is farmer or admin
+ */
+export const requireFarmer = authorizeRoles('farmer', 'admin');
+
+/**
+ * Middleware to check if user exists and is active
+ */
+export async function checkUserStatus(req, res, next) {
+  try {
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+    
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        error: 'Account is deactivated'
+      });
+    }
+    
+    req.user.userData = user;
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: 'Error checking user status'
+    });
+  }
+}
+  
