@@ -1,8 +1,7 @@
-// File: server/routes/community.js
 import express from 'express';
 import multer from 'multer';
-import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
-import * as communityController from '../controllers/communityController.js';
+import { authMiddleware as authenticateToken, authorizeRoles } from '../middleware/auth.middleware.js';
+import * as communityController from '../controllers/community.controller.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });

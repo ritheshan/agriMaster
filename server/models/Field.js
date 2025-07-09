@@ -22,3 +22,6 @@ const fieldSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 fieldSchema.index({ location: '2dsphere' });
+
+const Field = mongoose.model('Field', fieldSchema);
+export default Field;

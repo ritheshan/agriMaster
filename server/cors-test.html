@@ -1,0 +1,81 @@
+// Simple test HTML file to isolate CORS issues
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test</title>
+</head>
+<body>
+    <h1>CORS Test Page</h1>
+    <p>Open the browser console to see results</p>
+    
+    <button id="testGet">Test GET Request</button>
+    <button id="testPost">Test POST Request</button>
+    <button id="testSendOtp">Test Send OTP</button>
+
+    <script>
+        // Test GET request
+        document.getElementById('testGet').addEventListener('click', async () => {
+            console.log('Testing GET request...');
+            try {
+                const response = await fetch('http://localhost:5000/api/cors-test', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Try with and without credentials
+                    credentials: 'omit'
+                });
+                
+                const data = await response.json();
+                console.log('GET Success:', data);
+            } catch (error) {
+                console.error('GET Error:', error);
+            }
+        });
+
+        // Test POST request
+        document.getElementById('testPost').addEventListener('click', async () => {
+            console.log('Testing POST request...');
+            try {
+                const response = await fetch('http://localhost:5000/api/cors-test-post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Try with and without credentials
+                    credentials: 'omit',
+                    body: JSON.stringify({ test: 'data' })
+                });
+                
+                const data = await response.json();
+                console.log('POST Success:', data);
+            } catch (error) {
+                console.error('POST Error:', error);
+            }
+        });
+
+        // Test real send-otp endpoint
+        document.getElementById('testSendOtp').addEventListener('click', async () => {
+            console.log('Testing Send OTP endpoint...');
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/send-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    // Try with and without credentials
+                    credentials: 'omit',
+                    body: JSON.stringify({ phoneNumber: '+1234567890' })
+                });
+                
+                const data = await response.json();
+                console.log('Send OTP Success:', data);
+            } catch (error) {
+                console.error('Send OTP Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

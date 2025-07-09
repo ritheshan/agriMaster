@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
@@ -17,32 +16,67 @@ import mlRoutes from './routes/ml.routes.js';
 // Initialize cron jobs
 import './utils/cron.js';
 
-dotenv.config();
+dotenv.config(); // ✅ Already present
 const app = express();
 
-// Security middleware
-app.use(helmet());
+app.use(
+  cors({
+    origin: [
+      process.env.FRONTEND_URL,
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+    ], // Allow requests from the frontend URL
+    credentials: true, // Allow cookies to be sent
+  })
+);
+app.use(express.json());
+// Import Twilio client
+import twilio from 'twilio';
+console.log('🧪 TWILIO ENV LOADED:', process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// Rate limiting
+const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } = process.env;
+export const twilioClient = TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN
+  ? twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+  : null;
+
+// CRITICAL NOTE: You cannot use both credentials:true AND origin:'*' - they are incompatible
+// Using specific allowed origins with credentials:true
+
+// Add debug endpoints directly to index.js
+app.get('/api/cors-test', (req, res) => {
+  console.log('GET test received with origin:', req.headers.origin);
+  res.json({ success: true, message: 'CORS test successful!' });
+});
+
+app.post('/api/cors-test-post', (req, res) => {
+  console.log('POST test received with origin:', req.headers.origin, 'body:', req.body);
+  res.json({ success: true, message: 'POST test successful!', received: req.body });
+});
+
+// Rate limiting - with special handling for OPTIONS requests
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  // Don't rate limit preflight requests
+  skip: (req, res) => req.method === 'OPTIONS'
 });
 
 app.use(limiter);
 
-// CORS configuration
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CLIENT_URL 
-    : ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+// DEBUG ENDPOINT - test CORS directly
+app.options('/api/test-cors', (req, res) => {
+  console.log('OPTIONS request received for test endpoint');
+  res.status(200).send('CORS OK');
+});
+
+app.get('/api/test-cors', (req, res) => {
+  console.log('GET request received for test endpoint');
+  res.status(200).json({ message: 'CORS is working!' });
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -68,6 +102,9 @@ app.use('/api/crops', cropRoutes);
 app.use('/api/weather', weatherRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/ml', mlRoutes);
+app.get("/api/ping", (req, res) => {
+  res.send("Server is up");
+});
 
 // Global error handler
 app.use((err, req, res, next) => {

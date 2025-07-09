@@ -1,5 +1,3 @@
-// File: server/controllers/communityController.js
-
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
 import User from '../models/User.js';

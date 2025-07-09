@@ -23,10 +23,11 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     unique: true,
-    sparse: true,
+    sparse: true, // This allows null/undefined values
     trim: true,
     minlength: [3, 'Username must be at least 3 characters'],
-    maxlength: [20, 'Username must be at most 20 characters']
+    maxlength: [20, 'Username must be at most 20 characters'],
+    // No required validation - it's optional for phone login
   },
   googleId: {
   type: String,
@@ -41,9 +42,12 @@ authProviders: {
   password: {
     type: String,
     minlength: [6, 'Password must be at least 6 characters'],
-    select: false,
+    select: false, // Don't include password in query results by default
     required: function () {
-      return this.role === 'admin' || this.role === 'expert';
+      // Password required for local login or admin/expert roles
+      return this.authProviders?.includes('local') || 
+             this.role === 'admin' || 
+             this.role === 'expert';
     }
   },
 
@@ -89,6 +93,11 @@ authProviders: {
     ref: 'CropRecord'
   }],
 
+  profileCompleted: {
+    type: Boolean,
+    default: false
+  },
+
   verificationOtp: String,         // 🔐 Hashed OTP
   otpExpires: Date,                // ⏱️ Expiration time for OTP
 
@@ -100,7 +109,9 @@ authProviders: {
 
 // 🔐 Pre-save hook to hash password
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  // Skip if no password or it's not modified
+  if (!this.password || !this.isModified('password')) return next();
+  
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
